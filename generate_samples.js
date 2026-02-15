@@ -1,12 +1,5 @@
-import fs from "fs";
-import https from "https";
-
-const FILES = [
-  "news_sample.txt",
-  "subtitle_sample.txt",
-  "umkm_story.txt",
-  "wikipedia_sample.txt"
-];
+const fs = require("fs");
+const https = require("https");
 
 function fetch(url){
   return new Promise((resolve,reject)=>{
@@ -27,11 +20,9 @@ function extract(t){
 }
 
 async function main(){
-
   let sentences=[];
 
-  // wikipedia 10 halaman
-  for(let i=0;i<10;i++){
+  for(let i=0;i<5;i++){
     try{
       let r = await fetch("https://id.wikipedia.org/api/rest_v1/page/random/summary");
       let j = JSON.parse(r);
@@ -39,23 +30,10 @@ async function main(){
     }catch{}
   }
 
-  // rss sukslan
-  try{
-    let r = await fetch("https://sukslan.blogspot.com/feeds/posts/default?alt=json");
-    let j = JSON.parse(r);
-    (j.feed.entry||[]).forEach(p=>{
-      sentences.push(...extract(p.summary?.$t||""));
-    });
-  }catch{}
-
   sentences=[...new Set(sentences)];
+  fs.writeFileSync("wikipedia_sample.txt", sentences.join("\n"));
 
-  // simpan ke semua sample file
-  FILES.forEach(f=>{
-    fs.writeFileSync(f, sentences.slice(0,1000).join("\n"));
-  });
-
-  console.log("Sample dataset created");
+  console.log("Sample created");
 }
 
 main();
